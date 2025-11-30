@@ -1,72 +1,201 @@
 # Home Library Service
 
-## Prerequisites
+## Running the Application
 
-- Git - [Download & Install Git](https://git-scm.com/downloads).
-- Node.js - [Download & Install Node.js](https://nodejs.org/en/download/) and the npm package manager.
+### 1. Install Dependencies (if not already installed)
 
-## Downloading
-
-```
-git clone {repository URL}
-```
-
-## Installing NPM modules
-
-```
+```bash
 npm install
 ```
 
-## Running application
+### 2. Environment Variables Setup
 
+Create a `.env` file in the project root:
+
+```bash
+PORT=4000
 ```
+
+### 3. Start the Application
+
+**Development mode (with auto-reload):**
+
+```bash
+npm run start:dev
+```
+
+**Normal mode:**
+
+```bash
 npm start
 ```
 
-After starting the app on port (4000 as default) you can open
-in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
-For more information about OpenAPI/Swagger please visit https://swagger.io/.
+**Production mode (after build):**
 
-## Testing
-
-After application running open new terminal and enter:
-
-To run all tests without authorization
-
-```
-npm run test
+```bash
+npm run build
+npm run start:prod
 ```
 
-To run only one of all test suites
+The application will be available at: `http://localhost:4000`
 
-```
-npm run test -- <path to suite>
+## Testing the Application
+
+### 1. Testing with curl
+
+**Get all users:**
+
+```bash
+curl http://localhost:4000/user -H "Accept: application/json"
 ```
 
-To run all test with authorization
+**Get all tracks:**
 
+```bash
+curl http://localhost:4000/track -H "Accept: application/json"
 ```
+
+**Get all artists:**
+
+```bash
+curl http://localhost:4000/artist -H "Accept: application/json"
+```
+
+**Get all albums:**
+
+```bash
+curl http://localhost:4000/album -H "Accept: application/json"
+```
+
+**Get favorites:**
+
+```bash
+curl http://localhost:4000/favs -H "Accept: application/json"
+```
+
+**Create a user:**
+
+```bash
+curl -X POST http://localhost:4000/user \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{"login":"testuser","password":"testpass123"}'
+```
+
+**Create a track:**
+
+```bash
+curl -X POST http://localhost:4000/track \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{"name":"Test Track","duration":180,"artistId":null,"albumId":null}'
+```
+
+**Create an artist:**
+
+```bash
+curl -X POST http://localhost:4000/artist \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{"name":"Test Artist","grammy":false}'
+```
+
+**Create an album:**
+
+```bash
+curl -X POST http://localhost:4000/album \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{"name":"Test Album","year":2024,"artistId":null}'
+```
+
+### 2. Running Tests
+
+**All tests:**
+
+```bash
+npm test
+```
+
+**Auth tests:**
+
+```bash
 npm run test:auth
 ```
 
-To run only specific test suite with authorization
+**Tests with coverage:**
 
-```
-npm run test:auth -- <path to suite>
-```
-
-### Auto-fix and format
-
-```
-npm run lint
+```bash
+npm run test:cov
 ```
 
-```
-npm run format
-```
+### 3. Testing via Browser
 
-### Debugging in VSCode
+Open in your browser:
 
-Press <kbd>F5</kbd> to debug.
+- `http://localhost:4000/user` - list of users
+- `http://localhost:4000/track` - list of tracks
+- `http://localhost:4000/artist` - list of artists
+- `http://localhost:4000/album` - list of albums
+- `http://localhost:4000/favs` - favorites
 
-For more information, visit: https://code.visualstudio.com/docs/editor/debugging
+## Available Endpoints
+
+### Users (`/user`)
+
+- `GET /user` - get all users
+- `GET /user/:id` - get user by ID
+- `POST /user` - create a user
+- `PUT /user/:id` - update user password
+- `DELETE /user/:id` - delete a user
+
+### Tracks (`/track`)
+
+- `GET /track` - get all tracks
+- `GET /track/:id` - get track by ID
+- `POST /track` - create a track
+- `PUT /track/:id` - update a track
+- `DELETE /track/:id` - delete a track
+
+### Artists (`/artist`)
+
+- `GET /artist` - get all artists
+- `GET /artist/:id` - get artist by ID
+- `POST /artist` - create an artist
+- `PUT /artist/:id` - update an artist
+- `DELETE /artist/:id` - delete an artist
+
+### Albums (`/album`)
+
+- `GET /album` - get all albums
+- `GET /album/:id` - get album by ID
+- `POST /album` - create an album
+- `PUT /album/:id` - update an album
+- `DELETE /album/:id` - delete an album
+
+### Favorites (`/favs`)
+
+- `GET /favs` - get all favorites
+- `POST /favs/track/:id` - add track to favorites
+- `DELETE /favs/track/:id` - remove track from favorites
+- `POST /favs/album/:id` - add album to favorites
+- `DELETE /favs/album/:id` - remove album from favorites
+- `POST /favs/artist/:id` - add artist to favorites
+- `DELETE /favs/artist/:id` - remove artist from favorites
+
+## Data Format
+
+All requests and responses use `application/json` format.
+
+## Validation
+
+All incoming requests are automatically validated. Invalid data returns a 400 status with error descriptions.
+
+## Features
+
+- **In-memory data storage**: Currently uses in-memory arrays for data persistence
+- **Modular architecture**: Organized into domain-specific modules (User, Track, Artist, Album, Favorites)
+- **Request validation**: Automatic validation of request bodies using class-validator
+- **Cascading deletion**: When an Artist, Album, or Track is deleted, its ID is removed from favorites and references in other entities are set to null
+- **Password exclusion**: User passwords are never returned in API responses
+- **UUID validation**: All ID parameters are validated as UUID v4
