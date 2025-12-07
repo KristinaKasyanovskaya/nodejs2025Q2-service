@@ -22,8 +22,8 @@ export class UserController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  getAllUsers(): Omit<User, 'password'>[] {
-    const users = this.userService.findAll();
+  async getAllUsers(): Promise<Omit<User, 'password'>[]> {
+    const users = await this.userService.findAll();
     return users.map(
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       ({ password, ...userWithoutPassword }) => userWithoutPassword,
@@ -32,11 +32,11 @@ export class UserController {
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
-  getUserById(@Param('id') id: string): Omit<User, 'password'> {
+  async getUserById(@Param('id') id: string): Promise<Omit<User, 'password'>> {
     if (!validate(id)) {
       throw new BadRequestException('userId is invalid (not uuid)');
     }
-    const user = this.userService.findOne(id);
+    const user = await this.userService.findOne(id);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...userWithoutPassword } = user;
     return userWithoutPassword;
@@ -44,8 +44,8 @@ export class UserController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  createUser(@Body() createUserDto: CreateUserDto): Omit<User, 'password'> {
-    const user = this.userService.create(createUserDto);
+  async createUser(@Body() createUserDto: CreateUserDto): Promise<Omit<User, 'password'>> {
+    const user = await this.userService.create(createUserDto);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...userWithoutPassword } = user;
     return userWithoutPassword;
@@ -53,14 +53,14 @@ export class UserController {
 
   @Put(':id')
   @HttpCode(HttpStatus.OK)
-  updateUserPassword(
+  async updateUserPassword(
     @Param('id') id: string,
     @Body() updatePasswordDto: UpdatePasswordDto,
-  ): Omit<User, 'password'> {
+  ): Promise<Omit<User, 'password'>> {
     if (!validate(id)) {
       throw new BadRequestException('userId is invalid (not uuid)');
     }
-    const user = this.userService.updatePassword(id, updatePasswordDto);
+    const user = await this.userService.updatePassword(id, updatePasswordDto);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...userWithoutPassword } = user;
     return userWithoutPassword;
@@ -68,10 +68,10 @@ export class UserController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  deleteUser(@Param('id') id: string): void {
+  async deleteUser(@Param('id') id: string): Promise<void> {
     if (!validate(id)) {
       throw new BadRequestException('userId is invalid (not uuid)');
     }
-    this.userService.remove(id);
+    await this.userService.remove(id);
   }
 }

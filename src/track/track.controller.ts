@@ -22,43 +22,43 @@ export class TrackController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  getAllTracks(): Track[] {
-    return this.trackService.findAll();
+  async getAllTracks(): Promise<Track[]> {
+    return await this.trackService.findAll();
   }
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
-  getTrackById(@Param('id') id: string): Track {
+  async getTrackById(@Param('id') id: string): Promise<Track> {
     if (!validate(id)) {
       throw new BadRequestException('trackId is invalid (not uuid)');
     }
-    return this.trackService.findOne(id);
+    return await this.trackService.findOne(id);
   }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  createTrack(@Body() createTrackDto: CreateTrackDto): Track {
-    return this.trackService.create(createTrackDto);
+  async createTrack(@Body() createTrackDto: CreateTrackDto): Promise<Track> {
+    return await this.trackService.create(createTrackDto);
   }
 
   @Put(':id')
   @HttpCode(HttpStatus.OK)
-  updateTrack(
+  async updateTrack(
     @Param('id') id: string,
     @Body() updateTrackDto: UpdateTrackDto,
-  ): Track {
+  ): Promise<Track> {
     if (!validate(id)) {
       throw new BadRequestException('trackId is invalid (not uuid)');
     }
-    return this.trackService.update(id, updateTrackDto);
+    return await this.trackService.update(id, updateTrackDto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  deleteTrack(@Param('id') id: string): void {
+  async deleteTrack(@Param('id') id: string): Promise<void> {
     if (!validate(id)) {
       throw new BadRequestException('trackId is invalid (not uuid)');
     }
-    this.trackService.remove(id);
+    await this.trackService.remove(id);
   }
 }

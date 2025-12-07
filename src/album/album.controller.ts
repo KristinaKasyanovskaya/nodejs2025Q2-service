@@ -22,43 +22,43 @@ export class AlbumController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  getAllAlbums(): Album[] {
-    return this.albumService.findAll();
+  async getAllAlbums(): Promise<Album[]> {
+    return await this.albumService.findAll();
   }
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
-  getAlbumById(@Param('id') id: string): Album {
+  async getAlbumById(@Param('id') id: string): Promise<Album> {
     if (!validate(id)) {
       throw new BadRequestException('albumId is invalid (not uuid)');
     }
-    return this.albumService.findOne(id);
+    return await this.albumService.findOne(id);
   }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  createAlbum(@Body() createAlbumDto: CreateAlbumDto): Album {
-    return this.albumService.create(createAlbumDto);
+  async createAlbum(@Body() createAlbumDto: CreateAlbumDto): Promise<Album> {
+    return await this.albumService.create(createAlbumDto);
   }
 
   @Put(':id')
   @HttpCode(HttpStatus.OK)
-  updateAlbum(
+  async updateAlbum(
     @Param('id') id: string,
     @Body() updateAlbumDto: UpdateAlbumDto,
-  ): Album {
+  ): Promise<Album> {
     if (!validate(id)) {
       throw new BadRequestException('albumId is invalid (not uuid)');
     }
-    return this.albumService.update(id, updateAlbumDto);
+    return await this.albumService.update(id, updateAlbumDto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  deleteAlbum(@Param('id') id: string): void {
+  async deleteAlbum(@Param('id') id: string): Promise<void> {
     if (!validate(id)) {
       throw new BadRequestException('albumId is invalid (not uuid)');
     }
-    this.albumService.remove(id);
+    await this.albumService.remove(id);
   }
 }

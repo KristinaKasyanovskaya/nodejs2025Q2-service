@@ -1,22 +1,105 @@
 # Home Library Service
 
-## Running the Application
+## Prerequisites
 
-### 1. Install Dependencies (if not already installed)
+- Node.js 24.10.0 or higher
+- Docker (or Colima for macOS)
+- npm or yarn
+
+## Running with Docker (Recommended)
+
+### Using Colima (macOS)
+
+If you're using Colima instead of Docker Desktop:
+
+1. **Start Colima:**
+   ```bash
+   colima start
+   ```
+
+2. **Set Docker context to Colima:**
+   ```bash
+   docker context use colima
+   ```
+
+3. **Create `.env` file** (optional, defaults are provided):
+   ```bash
+   PORT=4000
+   POSTGRES_USER=postgres
+   POSTGRES_PASSWORD=postgres
+   POSTGRES_DB=home_library
+   POSTGRES_HOST=postgres
+   POSTGRES_PORT=5432
+   ```
+
+4. **Build and start containers:**
+   ```bash
+   docker-compose up --build
+   ```
+
+5. **Access the application:**
+   - API: `http://localhost:4000`
+   - PostgreSQL: `localhost:5432`
+
+### Using Docker Desktop
+
+1. **Create `.env` file** (optional):
+   ```bash
+   PORT=4000
+   POSTGRES_USER=postgres
+   POSTGRES_PASSWORD=postgres
+   POSTGRES_DB=home_library
+   ```
+
+2. **Build and start containers:**
+   ```bash
+   docker-compose up --build
+   ```
+
+### Docker Commands
+
+- **Stop containers:** `docker-compose down`
+- **View logs:** `docker-compose logs -f`
+- **Rebuild:** `docker-compose up --build`
+- **Stop and remove volumes:** `docker-compose down -v`
+
+## Running Locally (Development)
+
+### 1. Install Dependencies
 
 ```bash
 npm install
 ```
 
-### 2. Environment Variables Setup
+### 2. Setup PostgreSQL Database
+
+Make sure PostgreSQL is running locally, then create a database:
+
+```bash
+createdb home_library
+```
+
+Or using psql:
+```sql
+CREATE DATABASE home_library;
+```
+
+### 3. Environment Variables Setup
 
 Create a `.env` file in the project root:
 
 ```bash
 PORT=4000
+NODE_ENV=development
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=home_library
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/home_library
 ```
 
-### 3. Start the Application
+### 4. Start the Application
 
 **Development mode (with auto-reload):**
 
@@ -193,9 +276,23 @@ All incoming requests are automatically validated. Invalid data returns a 400 st
 
 ## Features
 
-- **In-memory data storage**: Currently uses in-memory arrays for data persistence
+- **PostgreSQL Database**: Persistent data storage using PostgreSQL
+- **TypeORM**: Object-Relational Mapping for database operations
+- **Docker Support**: Multi-container setup with Docker Compose
 - **Modular architecture**: Organized into domain-specific modules (User, Track, Artist, Album, Favorites)
 - **Request validation**: Automatic validation of request bodies using class-validator
 - **Cascading deletion**: When an Artist, Album, or Track is deleted, its ID is removed from favorites and references in other entities are set to null
 - **Password exclusion**: User passwords are never returned in API responses
 - **UUID validation**: All ID parameters are validated as UUID v4
+- **Database migrations**: Automatic schema synchronization in development mode
+
+## Database Schema
+
+The application uses the following database tables:
+- `users` - User accounts
+- `artists` - Music artists
+- `albums` - Music albums
+- `tracks` - Music tracks
+- `favorite_artists` - User favorite artists
+- `favorite_albums` - User favorite albums
+- `favorite_tracks` - User favorite tracks
