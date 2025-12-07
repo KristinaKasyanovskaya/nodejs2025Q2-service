@@ -1,4 +1,4 @@
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 import { UserEntity } from '../entities/user.entity';
 import { ArtistEntity } from '../entities/artist.entity';
 import { AlbumEntity } from '../entities/album.entity';
@@ -7,7 +7,7 @@ import { FavoriteArtistEntity } from '../entities/favorite-artist.entity';
 import { FavoriteAlbumEntity } from '../entities/favorite-album.entity';
 import { FavoriteTrackEntity } from '../entities/favorite-track.entity';
 
-export const typeOrmConfig: TypeOrmModuleOptions = {
+export default new DataSource({
   type: 'postgres',
   host: process.env.POSTGRES_HOST || 'localhost',
   port: parseInt(process.env.POSTGRES_PORT || '5432', 10),
@@ -23,9 +23,7 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
     FavoriteAlbumEntity,
     FavoriteTrackEntity,
   ],
-  migrations: ['dist/migrations/*.js'],
-  migrationsRun: process.env.RUN_MIGRATIONS === 'true', // Set RUN_MIGRATIONS=true to auto-run migrations
-  synchronize: false, // Use migrations instead of synchronize
-  logging: process.env.NODE_ENV === 'development',
-};
+  migrations: ['src/migrations/*.ts'],
+  synchronize: false,
+});
 

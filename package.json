@@ -22,7 +22,14 @@
     "test:refresh": "cross-env TEST_MODE=auth jest --testPathPattern refresh.e2e.spec.ts --noStackTrace --runInBand",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand"
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "audit": "npm audit",
+    "audit:fix": "npm audit fix",
+    "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/config/typeorm-cli.config.ts",
+    "migration:create": "typeorm-ts-node-commonjs migration:create",
+    "migration:run": "typeorm-ts-node-commonjs migration:run -d src/config/typeorm-cli.config.ts",
+    "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/config/typeorm-cli.config.ts",
+    "migration:show": "typeorm-ts-node-commonjs migration:show -d src/config/typeorm-cli.config.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.16",

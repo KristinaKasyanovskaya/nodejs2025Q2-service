@@ -1,23 +1,35 @@
-# Use Node.js 24.x
-FROM node:24.10.0-alpine
+# Build stage
+FROM node:24.10.0-alpine AS builder
 
 # Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
+# Copy package files
 COPY package*.json ./
 
 # Install all dependencies (including dev for build)
 RUN npm ci
 
-# Copy remaining files
+# Copy source files
 COPY . .
 
 # Build the application
 RUN npm run build
 
-# Remove dev dependencies after build
-RUN npm prune --production
+# Production stage
+FROM node:24.10.0-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install only production dependencies
+RUN npm ci --only=production && npm cache clean --force
+
+# Copy built application from builder stage
+COPY --from=builder /app/dist ./dist
 
 # Expose port
 EXPOSE 4000
