@@ -8,7 +8,13 @@ import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
-  private readonly publicRoutes = ['/auth/signup', '/auth/login', '/doc', '/'];
+  private readonly publicRoutes = [
+    '/auth/signup',
+    '/auth/login',
+    '/auth/refresh',
+    '/doc',
+    '/',
+  ];
 
   constructor(private readonly jwtService: JwtService) {}
 

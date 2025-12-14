@@ -20,7 +20,8 @@ Create a `.env` file in the project root:
 PORT=4000
 
 # JWT Configuration
-JWT_SECRET=your-secret-key-here   # Secret key for JWT token signing (required for authentication)
+JWT_SECRET=your-secret-key-here              # Secret key for JWT access token signing (required for authentication)
+JWT_SECRET_REFRESH_KEY=your-refresh-key-here # Secret key for JWT refresh token signing (optional, falls back to JWT_SECRET if not set)
 
 # Logging Configuration
 LOG_LEVEL=log                     # Logging level: numeric (0-4) or string (error, warn, log, debug, verbose)

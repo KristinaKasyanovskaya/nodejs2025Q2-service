@@ -1,10 +1,11 @@
 import {
   Injectable,
-  UnauthorizedException,
   ConflictException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import * as jwt from 'jsonwebtoken';
 import { UserService } from '../user/user.service';
 
 export interface TokenPayload {
@@ -14,6 +15,7 @@ export interface TokenPayload {
 
 export interface AuthResponse {
   accessToken: string;
+  refreshToken: string;
 }
 
 @Injectable()
@@ -52,12 +54,12 @@ export class AuthService {
     const user = users.find((user) => user.login === login);
 
     if (!user) {
-      throw new UnauthorizedException('Invalid login or password');
+      throw new ForbiddenException('Invalid login or password');
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid login or password');
+      throw new ForbiddenException('Invalid login or password');
     }
 
     const payload: TokenPayload = {
@@ -65,10 +67,49 @@ export class AuthService {
       login: user.login,
     };
 
+    return this.generateTokens(payload);
+  }
+
+  async refresh(refreshToken: string): Promise<AuthResponse> {
+    const refreshSecret =
+      process.env.JWT_SECRET_REFRESH_KEY ||
+      process.env.JWT_SECRET ||
+      'your-secret-key';
+
+    try {
+      const payload = jwt.verify(refreshToken, refreshSecret) as TokenPayload &
+        jwt.JwtPayload;
+
+      if (!payload.userId || !payload.login) {
+        throw new ForbiddenException('Invalid refresh token');
+      }
+
+      const tokenPayload: TokenPayload = {
+        userId: payload.userId,
+        login: payload.login,
+      };
+
+      return this.generateTokens(tokenPayload);
+    } catch (error) {
+      throw new ForbiddenException('Invalid or expired refresh token');
+    }
+  }
+
+  private generateTokens(payload: TokenPayload): AuthResponse {
     const accessToken = this.jwtService.sign(payload);
+
+    const refreshSecret =
+      process.env.JWT_SECRET_REFRESH_KEY ||
+      process.env.JWT_SECRET ||
+      'your-secret-key';
+
+    const refreshToken = jwt.sign(payload, refreshSecret, {
+      expiresIn: '7d',
+    });
 
     return {
       accessToken,
+      refreshToken,
     };
   }
 }
