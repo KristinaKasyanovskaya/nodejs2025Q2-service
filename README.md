@@ -14,6 +14,15 @@ Create a `.env` file in the project root:
 
 ```bash
 PORT=4000
+
+# Logging Configuration
+LOG_LEVEL=log                     # Logging level: numeric (0-4) or string (error, warn, log, debug, verbose)
+                                  # 0=error, 1=warn, 2=log, 3=debug, 4=verbose (default: log)
+                                  # When set to level N, logs all levels 0 to N (inclusive)
+LOG_FILE=app.log                  # Main log file name (default: app.log)
+ERROR_LOG_FILE=error.log          # Error log file name (default: error.log)
+LOG_DIR=logs                      # Log directory (default: logs)
+LOG_MAX_FILE_SIZE_KB=100          # Maximum log file size in KB before rotation (default: 100)
 ```
 
 ### 3. Start the Application
