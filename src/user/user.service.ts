@@ -25,12 +25,20 @@ export class UserService {
     return user;
   }
 
-  create(createUserDto: CreateUserDto): User {
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    let hashedPassword: string;
+    if (createUserDto.password.startsWith('$2')) {
+      hashedPassword = createUserDto.password;
+    } else {
+      const saltRounds = 10;
+      hashedPassword = await bcrypt.hash(createUserDto.password, saltRounds);
+    }
+
     const now = Date.now();
     const newUser: User = {
       id: randomUUID(),
       login: createUserDto.login,
-      password: createUserDto.password,
+      password: hashedPassword,
       version: 1,
       createdAt: now,
       updatedAt: now,

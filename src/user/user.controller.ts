@@ -44,8 +44,10 @@ export class UserController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  createUser(@Body() createUserDto: CreateUserDto): Omit<User, 'password'> {
-    const user = this.userService.create(createUserDto);
+  async createUser(
+    @Body() createUserDto: CreateUserDto,
+  ): Promise<Omit<User, 'password'>> {
+    const user = await this.userService.create(createUserDto);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...userWithoutPassword } = user;
     return userWithoutPassword;

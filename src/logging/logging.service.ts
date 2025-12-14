@@ -36,10 +36,11 @@ export class LoggingService {
 
   private setLogLevel(level: string | number): void {
     let levelIndex: number;
-    if (typeof level === 'string' && /^\d+$/.test(level)) {
-      levelIndex = parseInt(level, 10);
-    } else if (typeof level === 'number') {
+    if (typeof level === 'number') {
       levelIndex = level;
+    } else if (typeof level === 'string' && /^\d+$/.test(level)) {
+      levelIndex = parseInt(level, 10);
+    } else {
       const levelMap: Record<string, number> = {
         error: 0,
         warn: 1,

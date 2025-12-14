@@ -16,15 +16,21 @@ export class LoggingInterceptor implements NestInterceptor {
     const request = context.switchToHttp().getRequest();
     const { method, url, query, body } = request;
     const startTime = Date.now();
-    const requestLog = {
+    const baseUrl = url.split('?')[0];
+    const hasQuery = query && Object.keys(query).length > 0;
+
+    const requestLog: any = {
       method,
-      url,
-      query: Object.keys(query).length > 0 ? query : undefined,
-      body:
-        body && Object.keys(body).length > 0
-          ? this.sanitizeBody(body)
-          : undefined,
+      url: baseUrl,
     };
+
+    if (hasQuery) {
+      requestLog.query = query;
+    }
+
+    if (body && Object.keys(body).length > 0) {
+      requestLog.body = this.sanitizeBody(body);
+    }
 
     this.loggingService.log(
       `Incoming Request: ${JSON.stringify(requestLog, null, 2)}`,
@@ -39,7 +45,7 @@ export class LoggingInterceptor implements NestInterceptor {
           const duration = Date.now() - startTime;
           const responseLog = {
             method,
-            url,
+            url: baseUrl,
             statusCode,
             duration: `${duration}ms`,
           };
@@ -54,7 +60,7 @@ export class LoggingInterceptor implements NestInterceptor {
           const statusCode = error?.status || 500;
           const errorResponseLog = {
             method,
-            url,
+            url: baseUrl,
             statusCode,
             duration: `${duration}ms`,
             error: error?.message || 'Unknown error',
