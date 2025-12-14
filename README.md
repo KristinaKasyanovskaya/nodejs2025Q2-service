@@ -1,5 +1,9 @@
 # Home Library Service
 
+## 📚 Documentation
+
+For detailed verification instructions for all requirements (Logging & Error Handling, Authentication & Authorization), see [VERIFICATION_INSTRUCTIONS.md](./VERIFICATION_INSTRUCTIONS.md).
+
 ## Running the Application
 
 ### 1. Install Dependencies (if not already installed)
@@ -123,23 +127,12 @@ curl -X POST http://localhost:4000/album \
 
 ### 2. Running Tests
 
-**All tests:**
-
-```bash
-npm test
-```
-
 **Auth tests:**
 
 ```bash
 npm run test:auth
 ```
 
-**Tests with coverage:**
-
-```bash
-npm run test:cov
-```
 
 ### 3. Testing via Browser
 

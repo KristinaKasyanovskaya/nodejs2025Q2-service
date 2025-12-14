@@ -7,18 +7,18 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 echo "=========================================="
-echo "Проверка всех выполненных пунктов"
+echo "Verification of All Completed Requirements"
 echo "=========================================="
 echo ""
 
-# Проверка что приложение запущено
+# Check that application is running
 if ! curl -s http://localhost:4000/ > /dev/null 2>&1; then
-    echo -e "${RED}❌ Приложение не запущено!${NC}"
-    echo "Запустите: npm run start:dev"
+    echo -e "${RED}❌ Application is not running!${NC}"
+    echo "Start it with: npm run start:dev"
     exit 1
 fi
 
-echo -e "${GREEN}✅ Приложение запущено${NC}"
+echo -e "${GREEN}✅ Application is running${NC}"
 echo ""
 
 # ==========================================
@@ -37,10 +37,10 @@ HTTP_CODE=$(echo "$SIGNUP_RESPONSE" | grep "HTTP_CODE" | cut -d: -f2)
 BODY=$(echo "$SIGNUP_RESPONSE" | sed '/HTTP_CODE/d')
 
 if [ "$HTTP_CODE" = "201" ]; then
-    echo -e "${GREEN}✅ Signup работает (201)${NC}"
+    echo -e "${GREEN}✅ Signup works (201)${NC}"
     USER_ID=$(echo "$BODY" | jq -r '.id')
 else
-    echo -e "${RED}❌ Signup ошибка: $HTTP_CODE${NC}"
+    echo -e "${RED}❌ Signup error: $HTTP_CODE${NC}"
 fi
 echo ""
 
@@ -53,18 +53,18 @@ HTTP_CODE=$(echo "$LOGIN_RESPONSE" | grep "HTTP_CODE" | cut -d: -f2)
 BODY=$(echo "$LOGIN_RESPONSE" | sed '/HTTP_CODE/d')
 
 if [ "$HTTP_CODE" = "200" ]; then
-    echo -e "${GREEN}✅ Login работает (200)${NC}"
+    echo -e "${GREEN}✅ Login works (200)${NC}"
     TOKEN=$(echo "$BODY" | jq -r '.accessToken // empty')
     REFRESH_TOKEN=$(echo "$BODY" | jq -r '.refreshToken // empty')
     if [ -n "$TOKEN" ]; then
-        echo -e "${GREEN}✅ Access token получен${NC}"
+        echo -e "${GREEN}✅ Access token received${NC}"
     fi
     if [ -n "$REFRESH_TOKEN" ]; then
-        echo -e "${GREEN}✅ Refresh token получен${NC}"
+        echo -e "${GREEN}✅ Refresh token received${NC}"
     fi
 else
-    echo -e "${YELLOW}⚠️  Login требует существующего пользователя${NC}"
-    # Создаем пользователя и логинимся
+    echo -e "${YELLOW}⚠️  Login requires existing user${NC}"
+    # Create user and login
     SIGNUP_RESPONSE=$(curl -s -X POST $BASE_URL/auth/signup \
       -H "Content-Type: application/json" \
       -d '{"login":"checkuser'$(date +%s)'","password":"test123"}')
@@ -80,34 +80,34 @@ else
 fi
 echo ""
 
-# 3. Защищенный роут с токеном
+# 3. Protected route with token
 if [ -n "$TOKEN" ]; then
-    echo "3. GET /user (с токеном)"
+    echo "3. GET /user (with token)"
     PROTECTED_RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X GET $BASE_URL/user \
       -H "Authorization: Bearer $TOKEN" \
       -H "Accept: application/json")
     HTTP_CODE=$(echo "$PROTECTED_RESPONSE" | grep "HTTP_CODE" | cut -d: -f2)
     
     if [ "$HTTP_CODE" = "200" ]; then
-        echo -e "${GREEN}✅ Защищенный роут работает с токеном (200)${NC}"
+        echo -e "${GREEN}✅ Protected route works with token (200)${NC}"
     else
-        echo -e "${RED}❌ Ошибка: $HTTP_CODE${NC}"
+        echo -e "${RED}❌ Error: $HTTP_CODE${NC}"
     fi
 else
-    echo -e "${YELLOW}⚠️  Токен не получен, пропуск проверки${NC}"
+    echo -e "${YELLOW}⚠️  Token not received, skipping check${NC}"
 fi
 echo ""
 
-# 4. Защищенный роут без токена (401)
-echo "4. GET /user (без токена - должно быть 401)"
+# 4. Protected route without token (401)
+echo "4. GET /user (without token - should be 401)"
 NO_TOKEN_RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X GET $BASE_URL/user \
   -H "Accept: application/json")
 HTTP_CODE=$(echo "$NO_TOKEN_RESPONSE" | grep "HTTP_CODE" | cut -d: -f2)
 
 if [ "$HTTP_CODE" = "401" ]; then
-    echo -e "${GREEN}✅ Guard работает - возвращает 401 без токена${NC}"
+    echo -e "${GREEN}✅ Guard works - returns 401 without token${NC}"
 else
-    echo -e "${RED}❌ Ожидался 401, получен: $HTTP_CODE${NC}"
+    echo -e "${RED}❌ Expected 401, got: $HTTP_CODE${NC}"
 fi
 echo ""
 
@@ -120,26 +120,26 @@ if [ -n "$REFRESH_TOKEN" ]; then
     HTTP_CODE=$(echo "$REFRESH_RESPONSE" | grep "HTTP_CODE" | cut -d: -f2)
     
     if [ "$HTTP_CODE" = "200" ]; then
-        echo -e "${GREEN}✅ Refresh работает (200)${NC}"
+        echo -e "${GREEN}✅ Refresh works (200)${NC}"
     else
-        echo -e "${RED}❌ Refresh ошибка: $HTTP_CODE${NC}"
+        echo -e "${RED}❌ Refresh error: $HTTP_CODE${NC}"
     fi
 else
-    echo -e "${YELLOW}⚠️  Refresh token не получен, пропуск проверки${NC}"
+    echo -e "${YELLOW}⚠️  Refresh token not received, skipping check${NC}"
 fi
 echo ""
 
-# 6. Валидация signup (400)
-echo "6. POST /auth/signup (валидация - должно быть 400)"
+# 6. Signup validation (400)
+echo "6. POST /auth/signup (validation - should be 400)"
 VALIDATION_RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X POST $BASE_URL/auth/signup \
   -H "Content-Type: application/json" \
   -d '{}')
 HTTP_CODE=$(echo "$VALIDATION_RESPONSE" | grep "HTTP_CODE" | cut -d: -f2)
 
 if [ "$HTTP_CODE" = "400" ]; then
-    echo -e "${GREEN}✅ Валидация работает (400)${NC}"
+    echo -e "${GREEN}✅ Validation works (400)${NC}"
 else
-    echo -e "${RED}❌ Ожидался 400, получен: $HTTP_CODE${NC}"
+    echo -e "${RED}❌ Expected 400, got: $HTTP_CODE${NC}"
 fi
 echo ""
 
@@ -150,39 +150,38 @@ echo ""
 echo "=== LOGGING & ERROR HANDLING ==="
 echo ""
 
-# Проверка файлов логов
+# Check log files
 if [ -f "logs/app.log" ]; then
-    echo -e "${GREEN}✅ Файл logs/app.log существует${NC}"
+    echo -e "${GREEN}✅ File logs/app.log exists${NC}"
     
-    # Проверка записей
+    # Check entries
     if grep -q "Incoming Request" logs/app.log; then
-        echo -e "${GREEN}✅ Запросы логируются${NC}"
+        echo -e "${GREEN}✅ Requests are logged${NC}"
     fi
     
     if grep -q "Outgoing Response" logs/app.log; then
-        echo -e "${GREEN}✅ Ответы логируются${NC}"
+        echo -e "${GREEN}✅ Responses are logged${NC}"
     fi
     
     if grep -q "ExceptionFilter" logs/app.log; then
-        echo -e "${GREEN}✅ Exception Filter работает${NC}"
+        echo -e "${GREEN}✅ Exception Filter works${NC}"
     fi
 else
-    echo -e "${RED}❌ Файл logs/app.log не найден${NC}"
+    echo -e "${RED}❌ File logs/app.log not found${NC}"
 fi
 
 if [ -f "logs/error.log" ]; then
-    echo -e "${GREEN}✅ Файл logs/error.log существует${NC}"
+    echo -e "${GREEN}✅ File logs/error.log exists${NC}"
 else
-    echo -e "${YELLOW}⚠️  Файл logs/error.log пока не создан (создастся при первой ошибке)${NC}"
+    echo -e "${YELLOW}⚠️  File logs/error.log not created yet (will be created on first error)${NC}"
 fi
 
 echo ""
-echo "Последние 5 строк логов:"
-tail -n 5 logs/app.log 2>/dev/null || echo "Логи пока пусты"
+echo "Last 5 lines of logs:"
+tail -n 5 logs/app.log 2>/dev/null || echo "Logs are empty"
 echo ""
 
 echo "=========================================="
-echo "Проверка завершена!"
-echo "Подробные логи: tail -f logs/app.log"
+echo "Verification completed!"
+echo "Detailed logs: tail -f logs/app.log"
 echo "=========================================="
-

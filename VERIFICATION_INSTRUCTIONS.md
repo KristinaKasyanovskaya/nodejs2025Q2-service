@@ -1,8 +1,8 @@
-# Инструкция по проверке всех требований
+# Verification Instructions for All Requirements
 
-## 🔧 Подготовка
+## 🔧 Preparation
 
-### 1. Убедитесь, что .env файл создан и содержит:
+### 1. Ensure .env file exists and contains:
 
 ```bash
 PORT=4000
@@ -15,15 +15,15 @@ LOG_DIR=logs
 LOG_MAX_FILE_SIZE_KB=100
 ```
 
-### 2. Запустите приложение
+### 2. Start the application
 
 ```bash
 npm run start:dev
 ```
 
-Дождитесь: `Application is running on: http://localhost:4000`
+Wait for: `Application is running on: http://localhost:4000`
 
-### 3. Откройте терминал для просмотра логов
+### 3. Open terminal to view logs
 
 ```bash
 tail -f logs/app.log
@@ -35,66 +35,66 @@ tail -f logs/app.log
 
 ### 1. Custom LoggingService (+20)
 
-**Проверка:**
+**Verification:**
 ```bash
 curl http://localhost:4000/
 ```
 
-**Ожидаемый результат в logs/app.log:**
+**Expected result in logs/app.log:**
 ```
 2025-12-14T...Z [LOG    ] [LoggingInterceptor] Incoming Request: {...}
 2025-12-14T...Z [LOG    ] [LoggingInterceptor] Outgoing Response: {...}
 ```
 
-**Что проверить:**
-- ✅ Записи имеют формат: `[TIMESTAMP] [LEVEL] [CONTEXT] message`
-- ✅ Уровни логирования: `[LOG]`, `[ERROR]`, `[WARN]`, `[DEBUG]`, `[VERBOSE]`
-- ✅ Контексты: `[LoggingInterceptor]`, `[ExceptionFilter]`, `[Bootstrap]`
-- ✅ Временные метки в ISO формате
+**What to check:**
+- ✅ Log entries have format: `[TIMESTAMP] [LEVEL] [CONTEXT] message`
+- ✅ Logging levels: `[LOG]`, `[ERROR]`, `[WARN]`, `[DEBUG]`, `[VERBOSE]`
+- ✅ Contexts: `[LoggingInterceptor]`, `[ExceptionFilter]`, `[Bootstrap]`
+- ✅ Timestamps in ISO format
 
-**Статус:** ✅ Если видны логи с правильным форматом - работает
+**Status:** ✅ If logs appear with correct format - working
 
 ---
 
 ### 2. Custom Exception Filter (+20)
 
-**Проверка 2.1: Валидационная ошибка (400)**
+**Verification 2.1: Validation error (400)**
 ```bash
 curl -X POST http://localhost:4000/auth/signup \
   -H "Content-Type: application/json" \
   -d '{}'
 ```
 
-**Ожидаемый результат:**
-- HTTP ответ: `{"statusCode":400,"message":[...]}`
-- В логах: `[ERROR] [ExceptionFilter]` со статусом 400
+**Expected result:**
+- HTTP response: `{"statusCode":400,"message":[...]}`
+- In logs: `[ERROR] [ExceptionFilter]` with status 400
 
-**Проверка 2.2: Не найден роут (404)**
+**Verification 2.2: Route not found (404)**
 ```bash
 curl http://localhost:4000/nonexistent-route
 ```
 
-**Ожидаемый результат:**
-- HTTP ответ: `{"statusCode":404,"message":"Cannot GET /nonexistent-route"}`
-- В логах: `[ERROR] [ExceptionFilter]` со статусом 404
+**Expected result:**
+- HTTP response: `{"statusCode":404,"message":"Cannot GET /nonexistent-route"}`
+- In logs: `[ERROR] [ExceptionFilter]` with status 404
 
-**Что проверить:**
-- ✅ Все исключения обрабатываются ExceptionFilter
-- ✅ Возвращаются правильные HTTP статусы
-- ✅ Ошибки логируются с полной информацией (method, url, statusCode, message, stack)
+**What to check:**
+- ✅ All exceptions are handled by ExceptionFilter
+- ✅ Correct HTTP status codes are returned
+- ✅ Errors are logged with full information (method, url, statusCode, message, stack)
 
-**Статус:** ✅ Если ошибки логируются и возвращаются правильные статусы - работает
+**Status:** ✅ If errors are logged and correct statuses are returned - working
 
 ---
 
 ### 3. Logging for request and response (+20)
 
-**Проверка 3.1: Простой GET запрос**
+**Verification 3.1: Simple GET request**
 ```bash
 curl http://localhost:4000/
 ```
 
-**Ожидаемый результат в логах:**
+**Expected result in logs:**
 ```json
 {
   "method": "GET",
@@ -109,12 +109,12 @@ curl http://localhost:4000/
 }
 ```
 
-**Проверка 3.2: GET с query параметрами**
+**Verification 3.2: GET with query parameters**
 ```bash
 curl "http://localhost:4000/?test=123&foo=bar"
 ```
 
-**Ожидаемый результат в логах:**
+**Expected result in logs:**
 ```json
 {
   "method": "GET",
@@ -126,14 +126,14 @@ curl "http://localhost:4000/?test=123&foo=bar"
 }
 ```
 
-**Проверка 3.3: POST с body**
+**Verification 3.3: POST with body**
 ```bash
 curl -X POST http://localhost:4000/auth/signup \
   -H "Content-Type: application/json" \
   -d '{"login":"testuser","password":"test123"}'
 ```
 
-**Ожидаемый результат в логах:**
+**Expected result in logs:**
 ```json
 {
   "method": "POST",
@@ -152,35 +152,35 @@ curl -X POST http://localhost:4000/auth/signup \
 }
 ```
 
-**Что проверить:**
-- ✅ Логируется метод (GET, POST, PUT, DELETE)
-- ✅ Логируется URL
-- ✅ Логируются query параметры (если есть)
-- ✅ Логируется body (пароли маскируются как `***`)
-- ✅ Логируется status code ответа
-- ✅ Логируется duration (время обработки)
+**What to check:**
+- ✅ Method is logged (GET, POST, PUT, DELETE)
+- ✅ URL is logged
+- ✅ Query parameters are logged (if present)
+- ✅ Body is logged (passwords masked as `***`)
+- ✅ Response status code is logged
+- ✅ Duration is logged (processing time)
 
-**Статус:** ✅ Если все данные логируются - работает
+**Status:** ✅ If all data is logged - working
 
 ---
 
 ### 4. Error handling with HTTP status and logging (+20)
 
-**Проверка различных ошибок:**
+**Verification of various errors:**
 
 ```bash
-# Валидационная ошибка (400)
+# Validation error (400)
 curl -X POST http://localhost:4000/auth/signup \
   -H "Content-Type: application/json" \
   -d '{}'
 
-# Не найден роут (404)
+# Route not found (404)
 curl http://localhost:4000/nonexistent
 
-# Неавторизованный доступ (401)
+# Unauthorized access (401)
 curl http://localhost:4000/user
 
-# Невалидный UUID (400) - требует токен
+# Invalid UUID (400) - requires token
 TOKEN=$(curl -s -X POST http://localhost:4000/auth/login \
   -H "Content-Type: application/json" \
   -d '{"login":"testuser","password":"test123"}' | jq -r '.accessToken')
@@ -189,28 +189,28 @@ curl -X GET http://localhost:4000/user/invalid-uuid \
   -H "Authorization: Bearer $TOKEN"
 ```
 
-**Что проверить:**
-- ✅ Ошибки логируются с уровнем `[ERROR]`
-- ✅ Возвращаются правильные HTTP статусы:
-  - 400 для валидационных ошибок
-  - 401 для неавторизованных запросов
-  - 403 для запрещенных операций
-  - 404 для не найденных ресурсов
-  - 500 для внутренних ошибок
-- ✅ В логах есть полная информация об ошибке
+**What to check:**
+- ✅ Errors are logged with `[ERROR]` level
+- ✅ Correct HTTP status codes are returned:
+  - 400 for validation errors
+  - 401 for unauthorized requests
+  - 403 for forbidden operations
+  - 404 for not found resources
+  - 500 for internal errors
+- ✅ Full error information is in logs
 
-**Статус:** ✅ Если все ошибки логируются и возвращаются правильные статусы - работает
+**Status:** ✅ If all errors are logged and correct statuses are returned - working
 
 ---
 
 ### 5. uncaughtException event (+10)
 
-**Проверка кода:**
+**Code verification:**
 ```bash
 grep -A 5 "uncaughtException" src/main.ts
 ```
 
-**Ожидаемый результат:**
+**Expected result:**
 ```typescript
 process.on('uncaughtException', (error: Error) => {
   loggingService.error(
@@ -221,23 +221,23 @@ process.on('uncaughtException', (error: Error) => {
 });
 ```
 
-**Что проверить:**
-- ✅ Код существует в `src/main.ts`
-- ✅ Ошибки логируются через LoggingService
-- ✅ Приложение завершается при uncaughtException
+**What to check:**
+- ✅ Code exists in `src/main.ts`
+- ✅ Errors are logged via LoggingService
+- ✅ Application exits on uncaughtException
 
-**Статус:** ✅ Если код есть - работает
+**Status:** ✅ If code exists - working
 
 ---
 
 ### 6. unhandledRejection event (+10)
 
-**Проверка кода:**
+**Code verification:**
 ```bash
 grep -A 5 "unhandledRejection" src/main.ts
 ```
 
-**Ожидаемый результат:**
+**Expected result:**
 ```typescript
 process.on('unhandledRejection', (reason: unknown) => {
   const errorMessage =
@@ -248,12 +248,12 @@ process.on('unhandledRejection', (reason: unknown) => {
 });
 ```
 
-**Что проверить:**
-- ✅ Код существует в `src/main.ts`
-- ✅ Ошибки логируются через LoggingService
-- ✅ Приложение продолжает работать (не останавливается)
+**What to check:**
+- ✅ Code exists in `src/main.ts`
+- ✅ Errors are logged via LoggingService
+- ✅ Application continues running (does not exit)
 
-**Статус:** ✅ Если код есть - работает
+**Status:** ✅ If code exists - working
 
 ---
 
@@ -261,7 +261,7 @@ process.on('unhandledRejection', (reason: unknown) => {
 
 ### 7. Route /auth/signup (+30)
 
-**Проверка 7.1: Успешная регистрация (201)**
+**Verification 7.1: Successful registration (201)**
 ```bash
 curl -X POST http://localhost:4000/auth/signup \
   -H "Content-Type: application/json" \
@@ -269,141 +269,141 @@ curl -X POST http://localhost:4000/auth/signup \
   -d '{"login":"newuser'$(date +%s)'","password":"test123"}'
 ```
 
-**Ожидаемый результат:**
-- HTTP статус: `201 Created`
-- Ответ содержит: `id`, `login`, `version`, `createdAt`, `updatedAt`
-- Пароль НЕ возвращается
+**Expected result:**
+- HTTP status: `201 Created`
+- Response contains: `id`, `login`, `version`, `createdAt`, `updatedAt`
+- Password is NOT returned
 
-**Проверка 7.2: Валидационная ошибка (400)**
+**Verification 7.2: Validation error (400)**
 ```bash
 curl -X POST http://localhost:4000/auth/signup \
   -H "Content-Type: application/json" \
   -d '{}'
 ```
 
-**Ожидаемый результат:**
-- HTTP статус: `400 Bad Request`
-- Сообщение об ошибках валидации
+**Expected result:**
+- HTTP status: `400 Bad Request`
+- Validation error message
 
-**Проверка кода:**
+**Code verification:**
 ```bash
-# Проверить что логика разделена между controller и service
+# Check that logic is separated between controller and service
 grep -A 5 "signup" src/auth/auth.controller.ts
 grep -A 10 "signup" src/auth/auth.service.ts
 ```
 
-**Что проверить:**
-- ✅ Контроллер вызывает сервис
-- ✅ Логика регистрации в сервисе
-- ✅ Правильные HTTP статусы (201, 400)
-- ✅ Пароль не возвращается в ответе
+**What to check:**
+- ✅ Controller calls service
+- ✅ Registration logic in service
+- ✅ Correct HTTP statuses (201, 400)
+- ✅ Password not returned in response
 
-**Статус:** ✅ Если все работает правильно - работает
+**Status:** ✅ If everything works correctly - working
 
 ---
 
 ### 8. Route /auth/login (+30)
 
-**Проверка 8.1: Успешный вход (200)**
+**Verification 8.1: Successful login (200)**
 ```bash
-# Сначала зарегистрируйтесь
+# First register
 curl -X POST http://localhost:4000/auth/signup \
   -H "Content-Type: application/json" \
   -d '{"login":"testuser","password":"test123"}'
 
-# Затем войдите
+# Then login
 curl -X POST http://localhost:4000/auth/login \
   -H "Content-Type: application/json" \
   -d '{"login":"testuser","password":"test123"}'
 ```
 
-**Ожидаемый результат:**
-- HTTP статус: `200 OK`
-- Ответ содержит: `accessToken` и `refreshToken`
+**Expected result:**
+- HTTP status: `200 OK`
+- Response contains: `accessToken` and `refreshToken`
 
-**Проверка 8.2: Валидационная ошибка (400)**
+**Verification 8.2: Validation error (400)**
 ```bash
 curl -X POST http://localhost:4000/auth/login \
   -H "Content-Type: application/json" \
   -d '{"login":"testuser"}'
 ```
 
-**Ожидаемый результат:**
-- HTTP статус: `400 Bad Request`
+**Expected result:**
+- HTTP status: `400 Bad Request`
 
-**Проверка 8.3: Ошибка аутентификации (403)**
+**Verification 8.3: Authentication error (403)**
 ```bash
 curl -X POST http://localhost:4000/auth/login \
   -H "Content-Type: application/json" \
   -d '{"login":"testuser","password":"wrongpassword"}'
 ```
 
-**Ожидаемый результат:**
-- HTTP статус: `403 Forbidden`
-- Сообщение: "Invalid login or password"
+**Expected result:**
+- HTTP status: `403 Forbidden`
+- Message: "Invalid login or password"
 
-**Проверка кода:**
+**Code verification:**
 ```bash
 grep -A 5 "login" src/auth/auth.controller.ts
 grep -A 15 "login" src/auth/auth.service.ts
 ```
 
-**Что проверить:**
-- ✅ Контроллер вызывает сервис
-- ✅ Логика аутентификации в сервисе
-- ✅ Правильные HTTP статусы (200, 400, 403)
-- ✅ Возвращаются токены
+**What to check:**
+- ✅ Controller calls service
+- ✅ Authentication logic in service
+- ✅ Correct HTTP statuses (200, 400, 403)
+- ✅ Tokens are returned
 
-**Статус:** ✅ Если все работает правильно - работает
+**Status:** ✅ If everything works correctly - working
 
 ---
 
 ### 9. User password saved as hash (+10)
 
-**Проверка:**
+**Verification:**
 ```bash
-# Зарегистрируйте пользователя
+# Register a user
 curl -X POST http://localhost:4000/auth/signup \
   -H "Content-Type: application/json" \
   -d '{"login":"testuser","password":"rawpassword123"}'
 
-# Проверьте код - пароль должен быть захеширован в UserService
-# Пароль НЕ должен возвращаться в API ответах
+# Check code - password should be hashed in UserService
+# Password should NOT be returned in API responses
 ```
 
-**Проверка кода:**
+**Code verification:**
 ```bash
-# Проверить что используется bcrypt
+# Check that bcrypt is used
 grep -i "bcrypt" src/auth/auth.service.ts src/user/user.service.ts
 
-# Проверить что пароль не возвращается
+# Check that password is not returned
 grep "Omit.*password" src/user/user.controller.ts
 grep "Omit.*password" src/auth/auth.controller.ts
 ```
 
-**Что проверить:**
-- ✅ Пароль хешируется с помощью bcrypt
-- ✅ Пароль НЕ возвращается в API ответах
-- ✅ Используется `Omit<User, 'password'>` в контроллерах
+**What to check:**
+- ✅ Password is hashed using bcrypt
+- ✅ Password is NOT returned in API responses
+- ✅ `Omit<User, 'password'>` is used in controllers
 
-**Статус:** ✅ Если пароль хешируется и не возвращается - работает
+**Status:** ✅ If password is hashed and not returned - working
 
 ---
 
 ### 10. Access Token with userId and login (+20)
 
-**Проверка:**
+**Verification:**
 ```bash
-# Войдите и получите токен
+# Login and get token
 TOKEN=$(curl -s -X POST http://localhost:4000/auth/login \
   -H "Content-Type: application/json" \
   -d '{"login":"testuser","password":"test123"}' | jq -r '.accessToken')
 
-# Декодируйте токен (можно использовать jwt.io или node)
+# Decode token (can use jwt.io or node)
 node -e "const jwt = require('jsonwebtoken'); const decoded = jwt.decode('$TOKEN'); console.log(JSON.stringify(decoded, null, 2));"
 ```
 
-**Ожидаемый результат в payload:**
+**Expected result in payload:**
 ```json
 {
   "userId": "uuid-v4",
@@ -413,110 +413,110 @@ node -e "const jwt = require('jsonwebtoken'); const decoded = jwt.decode('$TOKEN
 }
 ```
 
-**Проверка .env:**
+**Verification .env:**
 ```bash
 grep JWT_SECRET .env
 ```
 
-**Что проверить:**
-- ✅ Токен содержит `userId` в payload
-- ✅ Токен содержит `login` в payload
-- ✅ Токен имеет expiration time (`exp`)
-- ✅ `JWT_SECRET` указан в `.env`
+**What to check:**
+- ✅ Token contains `userId` in payload
+- ✅ Token contains `login` in payload
+- ✅ Token has expiration time (`exp`)
+- ✅ `JWT_SECRET` is specified in `.env`
 
-**Статус:** ✅ Если токен содержит userId и login - работает
+**Status:** ✅ If token contains userId and login - working
 
 ---
 
 ### 11. Authentication required for all routes except exceptions (+40)
 
-**Проверка 11.1: Публичные роуты (не требуют токена)**
+**Verification 11.1: Public routes (do not require token)**
 ```bash
 # /auth/signup
 curl -X POST http://localhost:4000/auth/signup \
   -H "Content-Type: application/json" \
   -d '{"login":"test","password":"test123"}'
-# Должно работать без токена
+# Should work without token
 
 # /auth/login
 curl -X POST http://localhost:4000/auth/login \
   -H "Content-Type: application/json" \
   -d '{"login":"test","password":"test123"}'
-# Должно работать без токена
+# Should work without token
 
 # /auth/refresh
 curl -X POST http://localhost:4000/auth/refresh \
   -H "Content-Type: application/json" \
   -d '{"refreshToken":"..."}'
-# Должно работать без токена
+# Should work without token
 
 # /doc
 curl http://localhost:4000/doc
-# Должно работать без токена
+# Should work without token
 
 # /
 curl http://localhost:4000/
-# Должно работать без токена
+# Should work without token
 ```
 
-**Проверка 11.2: Защищенные роуты (требуют токен)**
+**Verification 11.2: Protected routes (require token)**
 ```bash
-# Без токена - должно быть 401
+# Without token - should be 401
 curl http://localhost:4000/user
-# Ожидается: {"statusCode":401,"message":"Access token is missing or invalid"}
+# Expected: {"statusCode":401,"message":"Access token is missing or invalid"}
 
-# С токеном - должно быть 200
-TOKEN="ваш_access_token"
+# With token - should be 200
+TOKEN="your_access_token"
 curl -H "Authorization: Bearer $TOKEN" http://localhost:4000/user
-# Ожидается: 200 OK с данными
+# Expected: 200 OK with data
 
-# Проверьте другие защищенные роуты
+# Check other protected routes
 curl http://localhost:4000/track
 curl http://localhost:4000/artist
 curl http://localhost:4000/album
-# Все должны возвращать 401 без токена
+# All should return 401 without token
 ```
 
-**Проверка кода:**
+**Code verification:**
 ```bash
-# Проверить что Guard применяется глобально
+# Check that Guard is applied globally
 grep "APP_GUARD" src/app.module.ts
 
-# Проверить publicRoutes в Guard
+# Check publicRoutes in Guard
 grep "publicRoutes" src/auth/jwt-auth.guard.ts
 ```
 
-**Что проверить:**
-- ✅ Публичные роуты работают без токена
-- ✅ Защищенные роуты требуют токен (401 без токена)
-- ✅ Guard применяется глобально через APP_GUARD
-- ✅ Используется Bearer схема: `Authorization: Bearer <token>`
+**What to check:**
+- ✅ Public routes work without token
+- ✅ Protected routes require token (401 without token)
+- ✅ Guard is applied globally via APP_GUARD
+- ✅ Bearer scheme is used: `Authorization: Bearer <token>`
 
-**Статус:** ✅ Если защищенные роуты требуют токен, а публичные нет - работает
+**Status:** ✅ If protected routes require token and public routes don't - working
 
 ---
 
 ### 12. Separate module for JWT token checking (+10)
 
-**Проверка структуры:**
+**Structure verification:**
 ```bash
-# Проверить что есть AuthModule
+# Check that AuthModule exists
 ls -la src/auth/
 
-# Проверить что есть JwtAuthGuard
+# Check that JwtAuthGuard exists
 cat src/auth/jwt-auth.guard.ts | head -20
 
-# Проверить что Guard применяется в AppModule
+# Check that Guard is applied in AppModule
 grep -A 3 "APP_GUARD" src/app.module.ts
 ```
 
-**Что проверить:**
-- ✅ Существует отдельный модуль (AuthModule)
-- ✅ Существует Guard (JwtAuthGuard)
-- ✅ Guard проверяет JWT токен
-- ✅ Guard применяется глобально
+**What to check:**
+- ✅ Separate module exists (AuthModule)
+- ✅ Guard exists (JwtAuthGuard)
+- ✅ Guard checks JWT token
+- ✅ Guard is applied globally
 
-**Статус:** ✅ Если структура правильная - работает
+**Status:** ✅ If structure is correct - working
 
 ---
 
@@ -524,126 +524,126 @@ grep -A 3 "APP_GUARD" src/app.module.ts
 
 ### 13. Logs written to file (+20)
 
-**Проверка:**
+**Verification:**
 ```bash
-# Выполните запрос
+# Execute a request
 curl http://localhost:4000/
 
-# Проверьте файл
+# Check file
 ls -la logs/app.log
 cat logs/app.log | tail -5
 ```
 
-**Ожидаемый результат:**
-- ✅ Файл `logs/app.log` существует
-- ✅ В файле есть записи о запросах
+**Expected result:**
+- ✅ File `logs/app.log` exists
+- ✅ File contains log entries about requests
 
-**Статус:** ✅ Если логи пишутся в файл - работает
+**Status:** ✅ If logs are written to file - working
 
 ---
 
 ### 14. Log file rotation with size (+10)
 
-**Проверка:**
+**Verification:**
 ```bash
-# Проверьте код ротации
+# Check rotation code
 grep -A 20 "rotateLogIfNeeded" src/logging/logging.service.ts
 
-# Временно уменьшите размер для теста (в .env)
+# Temporarily reduce size for testing (in .env)
 LOG_MAX_FILE_SIZE_KB=1
 
-# Перезапустите приложение
-# Выполните много запросов
+# Restart application
+# Execute many requests
 for i in {1..200}; do curl -s http://localhost:4000/ > /dev/null; done
 
-# Проверьте ротацию
+# Check rotation
 ls -la logs/ | grep app.log
 ```
 
-**Ожидаемый результат:**
-- ✅ Создаются файлы вида `app-2025-12-14T...log`
-- ✅ Старые файлы ротируются
+**Expected result:**
+- ✅ Files like `app-2025-12-14T...log` are created
+- ✅ Old files are rotated
 
-**ВАЖНО:** Верните нормальный размер файла после теста!
+**IMPORTANT:** Restore normal file size after testing!
 
-**Статус:** ✅ Если файлы ротируются - работает
+**Status:** ✅ If files are rotated - working
 
 ---
 
 ### 15. Environment variable for max file size (+10)
 
-**Проверка:**
+**Verification:**
 ```bash
-# Проверьте .env
+# Check .env
 grep LOG_MAX_FILE_SIZE_KB .env
 
-# Проверьте код
+# Check code
 grep "LOG_MAX_FILE_SIZE_KB" src/logging/logging.service.ts
 ```
 
-**Ожидаемый результат:**
-- ✅ В `.env` есть `LOG_MAX_FILE_SIZE_KB=100`
-- ✅ Код читает значение из `process.env.LOG_MAX_FILE_SIZE_KB`
+**Expected result:**
+- ✅ `.env` contains `LOG_MAX_FILE_SIZE_KB=100`
+- ✅ Code reads value from `process.env.LOG_MAX_FILE_SIZE_KB`
 
-**Статус:** ✅ Если переменная используется - работает
+**Status:** ✅ If variable is used - working
 
 ---
 
 ### 16. Error logs in separate file (+10)
 
-**Проверка:**
+**Verification:**
 ```bash
-# Создайте ошибку
+# Create an error
 curl http://localhost:4000/nonexistent-route
 
-# Проверьте оба файла
+# Check both files
 ls -la logs/
 tail -5 logs/app.log
-tail -5 logs/error.log  # Должен содержать только ошибки
+tail -5 logs/error.log  # Should contain only errors
 ```
 
-**Ожидаемый результат:**
-- ✅ Файл `logs/error.log` существует
-- ✅ Содержит только ошибки (уровень ERROR)
-- ✅ Ошибки также в `app.log`
+**Expected result:**
+- ✅ File `logs/error.log` exists
+- ✅ Contains only errors (ERROR level)
+- ✅ Errors are also in `app.log`
 
-**Статус:** ✅ Если ошибки в отдельном файле - работает
+**Status:** ✅ If errors are in separate file - working
 
 ---
 
 ### 17. Environment variable for logging level (+20)
 
-**Проверка 17.1: Разные уровни**
+**Verification 17.1: Different levels**
 
 ```bash
-# В .env установите LOG_LEVEL=error
+# In .env set LOG_LEVEL=error
 LOG_LEVEL=error
-# Перезапустите приложение
-# Выполните запросы - должны логироваться только ошибки
+# Restart application
+# Execute requests - only errors should be logged
 
-# В .env установите LOG_LEVEL=log
+# In .env set LOG_LEVEL=log
 LOG_LEVEL=log
-# Перезапустите приложение
-# Выполните запросы - должны логироваться error, warn, log
+# Restart application
+# Execute requests - error, warn, log should be logged
 
-# В .env установите LOG_LEVEL=verbose
+# In .env set LOG_LEVEL=verbose
 LOG_LEVEL=verbose
-# Перезапустите приложение
-# Выполните запросы - должны логироваться все уровни
+# Restart application
+# Execute requests - all levels should be logged
 ```
 
-**Проверка кода:**
+**Code verification:**
 ```bash
 grep "LOG_LEVEL" src/logging/logging.service.ts
 grep "setLogLevel" src/logging/logging.service.ts
 ```
 
-**Что проверить:**
-- ✅ Уровень читается из `process.env.LOG_LEVEL`
-- ✅ При уровне N логируются уровни 0..N
-- ✅ Используются Nest.js уровни: error, warn, log, debug, verbose
+**What to check:**
+- ✅ Level is read from `process.env.LOG_LEVEL`
+- ✅ When level is N, levels 0..N are logged
+- ✅ Nest.js levels are used: error, warn, log, debug, verbose
 
-**Статус:** ✅ Если уровни работают правильно - работает
+**Status:** ✅ If levels work correctly - working
 
 ---
 
@@ -651,132 +651,131 @@ grep "setLogLevel" src/logging/logging.service.ts
 
 ### 18. Route /auth/refresh (+30)
 
-**Проверка 18.1: Успешное обновление (200)**
+**Verification 18.1: Successful refresh (200)**
 ```bash
-# Получите refresh token
+# Get refresh token
 RESPONSE=$(curl -s -X POST http://localhost:4000/auth/login \
   -H "Content-Type: application/json" \
   -d '{"login":"testuser","password":"test123"}')
 
 REFRESH_TOKEN=$(echo $RESPONSE | jq -r '.refreshToken')
 
-# Обновите токены
+# Refresh tokens
 curl -X POST http://localhost:4000/auth/refresh \
   -H "Content-Type: application/json" \
   -d "{\"refreshToken\":\"$REFRESH_TOKEN\"}"
 ```
 
-**Ожидаемый результат:**
-- HTTP статус: `200 OK`
-- Ответ содержит: `accessToken` и `refreshToken` (новые)
+**Expected result:**
+- HTTP status: `200 OK`
+- Response contains: `accessToken` and `refreshToken` (new)
 
-**Проверка 18.2: Отсутствует refreshToken (401)**
+**Verification 18.2: Missing refreshToken (401)**
 ```bash
 curl -X POST http://localhost:4000/auth/refresh \
   -H "Content-Type: application/json" \
   -d '{}'
 ```
 
-**Ожидаемый результат:**
-- HTTP статус: `401 Unauthorized` или `400 Bad Request`
+**Expected result:**
+- HTTP status: `401 Unauthorized` or `400 Bad Request`
 
-**Проверка 18.3: Невалидный refreshToken (403)**
+**Verification 18.3: Invalid refreshToken (403)**
 ```bash
 curl -X POST http://localhost:4000/auth/refresh \
   -H "Content-Type: application/json" \
   -d '{"refreshToken":"invalid_token"}'
 ```
 
-**Ожидаемый результат:**
-- HTTP статус: `403 Forbidden`
-- Сообщение: "Invalid refresh token"
+**Expected result:**
+- HTTP status: `403 Forbidden`
+- Message: "Invalid refresh token"
 
-**Проверка кода:**
+**Code verification:**
 ```bash
 grep -A 5 "refresh" src/auth/auth.controller.ts
 grep -A 15 "refresh" src/auth/auth.service.ts
 ```
 
-**Что проверить:**
-- ✅ Контроллер вызывает сервис
-- ✅ Логика обновления токенов в сервисе
-- ✅ Правильные HTTP статусы (200, 401, 403)
-- ✅ Refresh token имеет более долгое время жизни чем access token
+**What to check:**
+- ✅ Controller calls service
+- ✅ Token refresh logic in service
+- ✅ Correct HTTP statuses (200, 401, 403)
+- ✅ Refresh token has longer lifetime than access token
 
-**Статус:** ✅ Если все работает правильно - работает
+**Status:** ✅ If everything works correctly - working
 
 ---
 
-## 🔍 Быстрая проверка всех пунктов
+## 🔍 Quick verification of all items
 
-### Скрипт для автоматической проверки:
+### Script for automatic verification:
 
 ```bash
 #!/bin/bash
 
 BASE_URL="http://localhost:4000"
 
-echo "=== Проверка Logging ==="
+echo "=== Checking Logging ==="
 curl -s $BASE_URL/ > /dev/null
 sleep 1
-tail -n 10 logs/app.log | grep -E "(Incoming|Outgoing)" && echo "✅ Логирование работает"
+tail -n 10 logs/app.log | grep -E "(Incoming|Outgoing)" && echo "✅ Logging works"
 
-echo "=== Проверка Exception Filter ==="
-curl -s -X POST $BASE_URL/auth/signup -H "Content-Type: application/json" -d '{}' | grep -q "400" && echo "✅ Exception Filter работает"
+echo "=== Checking Exception Filter ==="
+curl -s -X POST $BASE_URL/auth/signup -H "Content-Type: application/json" -d '{}' | grep -q "400" && echo "✅ Exception Filter works"
 
-echo "=== Проверка Authentication ==="
-curl -s -X POST $BASE_URL/auth/signup -H "Content-Type: application/json" -d '{"login":"test","password":"test123"}' | grep -q "id" && echo "✅ Signup работает"
+echo "=== Checking Authentication ==="
+curl -s -X POST $BASE_URL/auth/signup -H "Content-Type: application/json" -d '{"login":"test","password":"test123"}' | grep -q "id" && echo "✅ Signup works"
 
-curl -s $BASE_URL/user | grep -q "401" && echo "✅ Guard работает (401 без токена)"
+curl -s $BASE_URL/user | grep -q "401" && echo "✅ Guard works (401 without token)"
 
-echo "=== Проверка Refresh ==="
+echo "=== Checking Refresh ==="
 TOKEN=$(curl -s -X POST $BASE_URL/auth/login -H "Content-Type: application/json" -d '{"login":"test","password":"test123"}' | jq -r '.refreshToken 2>/dev/null')
 if [ -n "$TOKEN" ]; then
-  curl -s -X POST $BASE_URL/auth/refresh -H "Content-Type: application/json" -d "{\"refreshToken\":\"$TOKEN\"}" | grep -q "accessToken" && echo "✅ Refresh работает"
+  curl -s -X POST $BASE_URL/auth/refresh -H "Content-Type: application/json" -d "{\"refreshToken\":\"$TOKEN\"}" | grep -q "accessToken" && echo "✅ Refresh works"
 fi
 ```
 
 ---
 
-## ✅ Итоговый чек-лист
+## ✅ Final checklist
 
 ### Logging & Error Handling
-- [ ] Custom LoggingService логирует с правильным форматом
-- [ ] Exception Filter обрабатывает все ошибки
-- [ ] Запросы логируются (method, URL, query, body)
-- [ ] Ответы логируются (status code, duration)
-- [ ] Ошибки логируются и возвращаются правильные статусы
-- [ ] uncaughtException логируется
-- [ ] unhandledRejection логируется
-- [ ] Логи пишутся в файл
-- [ ] Ротация файлов работает
-- [ ] LOG_MAX_FILE_SIZE_KB в .env
-- [ ] Ошибки в отдельном файле
-- [ ] LOG_LEVEL в .env работает правильно
+- [ ] Custom LoggingService logs with correct format
+- [ ] Exception Filter handles all errors
+- [ ] Requests are logged (method, URL, query, body)
+- [ ] Responses are logged (status code, duration)
+- [ ] Errors are logged and correct statuses are returned
+- [ ] uncaughtException is logged
+- [ ] unhandledRejection is logged
+- [ ] Logs are written to file
+- [ ] File rotation works
+- [ ] LOG_MAX_FILE_SIZE_KB in .env
+- [ ] Errors in separate file
+- [ ] LOG_LEVEL in .env works correctly
 
 ### Authentication & Authorization
-- [ ] POST /auth/signup работает (201, 400)
-- [ ] POST /auth/login работает (200, 400, 403)
-- [ ] Пароли хешируются
-- [ ] Access Token содержит userId и login
-- [ ] JWT_SECRET в .env
-- [ ] Защищенные роуты требуют токен (401)
-- [ ] Публичные роуты работают без токена
-- [ ] Отдельный модуль для проверки JWT
-- [ ] POST /auth/refresh работает (200, 401, 403)
+- [ ] POST /auth/signup works (201, 400)
+- [ ] POST /auth/login works (200, 400, 403)
+- [ ] Passwords are hashed
+- [ ] Access Token contains userId and login
+- [ ] JWT_SECRET in .env
+- [ ] Protected routes require token (401)
+- [ ] Public routes work without token
+- [ ] Separate module for JWT checking
+- [ ] POST /auth/refresh works (200, 401, 403)
 
 ---
 
-## 🎯 Запуск тестов
+## 🎯 Running tests
 
 ```bash
-# Тесты аутентификации
+# Authentication tests
 npm run test:auth
 
-# Все тесты
+# All tests
 npm test
 
-# Линтинг
+# Linting
 npm run lint
 ```
-

@@ -3,67 +3,65 @@
 BASE_URL="http://localhost:4000"
 
 echo "========================================="
-echo "Тестирование Logging & Error Handling"
+echo "Testing Logging & Error Handling"
 echo "========================================="
 echo ""
 
-echo "=== Тест 1: LoggingService - Базовое логирование ==="
-echo "Отправка GET запроса к /user..."
+echo "=== Test 1: LoggingService - Basic logging ==="
+echo "Sending GET request to /user..."
 curl -s "$BASE_URL/user" -H "Accept: application/json" > /dev/null
-echo "✓ Запрос отправлен. Проверьте логи в консоли или файле."
+echo "✓ Request sent. Check logs in console or file."
 echo ""
 
-echo "=== Тест 2: Exception Filter - BadRequestException (400) ==="
-echo "Отправка запроса с невалидным UUID..."
+echo "=== Test 2: Exception Filter - BadRequestException (400) ==="
+echo "Sending request with invalid UUID..."
 RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X GET "$BASE_URL/user/invalid-uuid" -H "Accept: application/json")
 HTTP_STATUS=$(echo "$RESPONSE" | grep "HTTP_STATUS" | cut -d: -f2)
 BODY=$(echo "$RESPONSE" | sed '/HTTP_STATUS/d')
-echo "Ответ: $BODY"
+echo "Response: $BODY"
 echo "HTTP Status: $HTTP_STATUS"
-echo "✓ Проверьте логи на наличие [ERROR] записей от ExceptionFilter"
+echo "✓ Check logs for [ERROR] entries from ExceptionFilter"
 echo ""
 
-echo "=== Тест 3: Логирование запроса с query параметрами ==="
-echo "Отправка GET запроса с query параметрами..."
+echo "=== Test 3: Logging request with query parameters ==="
+echo "Sending GET request with query parameters..."
 curl -s -X GET "$BASE_URL/user?test=123&foo=bar" -H "Accept: application/json" > /dev/null
-echo "✓ Проверьте логи: должны быть URL и query параметры"
+echo "✓ Check logs: should contain URL and query parameters"
 echo ""
 
-echo "=== Тест 4: Логирование POST запроса с body ==="
-echo "Отправка POST запроса с телом..."
+echo "=== Test 4: Logging POST request with body ==="
+echo "Sending POST request with body..."
 curl -s -X POST "$BASE_URL/user" \
   -H "Content-Type: application/json" \
   -H "Accept: application/json" \
   -d '{"login":"testuser123","password":"secretpass123"}' > /dev/null
-echo "✓ Проверьте логи: должны быть URL, body (пароль должен быть ***)"
+echo "✓ Check logs: should contain URL, body (password should be ***)"
 echo ""
 
-echo "=== Тест 5: Различные статус коды ==="
-echo "Тест 200 OK..."
+echo "=== Test 5: Various status codes ==="
+echo "Test 200 OK..."
 curl -s "$BASE_URL/user" -H "Accept: application/json" > /dev/null
-echo "✓ Проверьте логи на статус 200"
-
-echo "Тест 404 Not Found (если endpoint не существует)..."
+echo "✓ Check logs for status 200"
+echo "Test 404 Not Found (if endpoint doesn't exist)..."
 curl -s "$BASE_URL/nonexistent-endpoint" -H "Accept: application/json" > /dev/null
-echo "✓ Проверьте логи на статус 404"
+echo "✓ Check logs for status 404"
 echo ""
 
-echo "=== Тест 6: Валидационная ошибка (400) ==="
-echo "Отправка невалидного запроса..."
+echo "=== Test 6: Validation error (400) ==="
+echo "Sending invalid request..."
 RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X POST "$BASE_URL/user" \
   -H "Content-Type: application/json" \
   -d '{}')
 HTTP_STATUS=$(echo "$RESPONSE" | grep "HTTP_STATUS" | cut -d: -f2)
 BODY=$(echo "$RESPONSE" | sed '/HTTP_STATUS/d')
-echo "Ответ: $BODY"
+echo "Response: $BODY"
 echo "HTTP Status: $HTTP_STATUS"
-echo "✓ Проверьте логи на наличие ошибок валидации"
+echo "✓ Check logs for validation errors"
 echo ""
 
 echo "========================================="
-echo "Основные тесты завершены!"
+echo "Main tests completed!"
 echo ""
-echo "Для тестирования uncaughtException и unhandledRejection"
-echo "см. инструкции в TEST_LOGGING.md"
+echo "For testing uncaughtException and unhandledRejection"
+echo "see instructions in TEST_LOGGING.md"
 echo "========================================="
-
