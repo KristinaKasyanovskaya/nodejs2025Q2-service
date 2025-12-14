@@ -4,6 +4,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { randomUUID } from 'crypto';
+import * as bcrypt from 'bcrypt';
 import { User } from '../interfaces';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
@@ -38,14 +39,28 @@ export class UserService {
     return newUser;
   }
 
-  updatePassword(id: string, updatePasswordDto: UpdatePasswordDto): User {
+  async updatePassword(
+    id: string,
+    updatePasswordDto: UpdatePasswordDto,
+  ): Promise<User> {
     const user = this.findOne(id);
 
-    if (user.password !== updatePasswordDto.oldPassword) {
+    const isOldPasswordValid = await bcrypt.compare(
+      updatePasswordDto.oldPassword,
+      user.password,
+    );
+
+    if (!isOldPasswordValid) {
       throw new ForbiddenException('oldPassword is wrong');
     }
 
-    user.password = updatePasswordDto.newPassword;
+    const saltRounds = 10;
+    const hashedNewPassword = await bcrypt.hash(
+      updatePasswordDto.newPassword,
+      saltRounds,
+    );
+
+    user.password = hashedNewPassword;
     user.version += 1;
     user.updatedAt = Date.now();
 

@@ -15,6 +15,9 @@ Create a `.env` file in the project root:
 ```bash
 PORT=4000
 
+# JWT Configuration
+JWT_SECRET=your-secret-key-here   # Secret key for JWT token signing (required for authentication)
+
 # Logging Configuration
 LOG_LEVEL=log                     # Logging level: numeric (0-4) or string (error, warn, log, debug, verbose)
                                   # 0=error, 1=warn, 2=log, 3=debug, 4=verbose (default: log)

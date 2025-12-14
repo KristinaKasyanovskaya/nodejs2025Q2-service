@@ -53,14 +53,14 @@ export class UserController {
 
   @Put(':id')
   @HttpCode(HttpStatus.OK)
-  updateUserPassword(
+  async updateUserPassword(
     @Param('id') id: string,
     @Body() updatePasswordDto: UpdatePasswordDto,
-  ): Omit<User, 'password'> {
+  ): Promise<Omit<User, 'password'>> {
     if (!validate(id)) {
       throw new BadRequestException('userId is invalid (not uuid)');
     }
-    const user = this.userService.updatePassword(id, updatePasswordDto);
+    const user = await this.userService.updatePassword(id, updatePasswordDto);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...userWithoutPassword } = user;
     return userWithoutPassword;
